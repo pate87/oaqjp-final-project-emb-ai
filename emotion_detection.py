@@ -1,5 +1,7 @@
 # Import the requests library to handle HTTP requests
 import requests
+# Import the json library to convert text into json format
+import json
 
 # Define a function named emotion_detector that takes a string input (text_to_analyze) 
 def emotion_detector(text_to_analyze):
@@ -11,5 +13,35 @@ def emotion_detector(text_to_analyze):
     myobj = { "raw_document": { "text": text_to_analyze } }
     # Send a POST request to the API with the text and headers 
     response = requests.post(url, json = myobj, headers=header)
-    # Return the response text from the API
-    return response.text
+    
+    # Parsing the JSON response from the API 
+    formatted_response = json.loads(response.text)
+
+    # Extract the required set of emotions, including anger, disgust, fear, joy and sadness, along with their scores.
+    anger_score = formatted_response['emotionPredictions'][0]['emotion']['anger'] 
+    disgust_score = formatted_response['emotionPredictions'][0]['emotion']['disgust']
+    fear_score = formatted_response['emotionPredictions'][0]['emotion']['fear']
+    joy_score = formatted_response['emotionPredictions'][0]['emotion']['joy']
+    sadness_score = formatted_response['emotionPredictions'][0]['emotion']['sadness']
+    
+    # Write the code logic to find the dominant emotion, which is the emotion with the highest score.
+    if anger_score > disgust_score and anger_score > fear_score and anger_score > joy_score and anger_score > sadness_score:
+        dominant_emotion = "anger"
+    elif disgust_score > anger_score and disgust_score > fear_score and disgust_score > joy_score and disgust_score > sadness_score:
+        dominant_emotion = "disgust"
+    elif fear_score > anger_score and fear_score > disgust_score and fear_score > joy_score and fear_score > sadness_score:
+        dominant_emotion = "fear"
+    elif joy_score > anger_score and joy_score > disgust_score and joy_score > fear_score and joy_score > sadness_score:
+        dominant_emotion = "joy"
+    else:
+        dominant_emotion = "sadness"
+
+    # Returning a dictionary containing emotion detection results 
+    return {
+        'anger': anger_score,
+        'disgust': disgust_score,
+        'fear': fear_score,
+        'joy': joy_score,
+        'sadness': sadness_score,
+        'dominant_emotion': dominant_emotion
+    }
